@@ -3,7 +3,8 @@ const { createServer, STATUS_CODES } = require('node:http');
 const { randomUUID } = require('node:crypto');
 const server = createServer();
 
-const tasks = [
+// Dummy Data
+let tasks = [
     {
         id: randomUUID(),
         title: 'Belajar NodeJS',
@@ -33,20 +34,127 @@ server.on("request", (req, res) => {
                 case 'GET':
                     const jsonRaw = JSON.stringify(tasks);
                     res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': jsonRaw.length });
-                    res.write(jsonRaw);
-                    res.end();
+                    res.end(jsonRaw);
                     return;
+
                 case 'POST':
-                    res.writeHead(501, { 'Content-Type': 'application/json' });
-                    res.end();
+                    (() => {
+                        const body = [];
+                        req.on('error', (error) => {
+                            console.log(error)
+                        })
+
+                        req.on('data', (data) => {
+                            body.push(data)
+                        })
+
+                        req.on('end', () => {
+                            const jsonRaw = Buffer.concat(body).toString();
+                            const { title } = JSON.parse(jsonRaw)
+
+                            if (title === undefined || title.length < 3) {
+                                const badRequset = JSON.stringify({ status: STATUS_CODES[400], message: "Title is required and must be grather than 3" })
+                                res.writeHead(400, { 'Content-Type': 'application/json', 'content-length': badRequset.length });
+                                res.end(badRequset);
+                                return;
+                            }
+
+                            const newTask = {
+                                id: randomUUID(),
+                                title,
+                                status: 'todo'
+                            }
+
+                            tasks.push(newTask)
+                            const newTaskJson = JSON.stringify(newTask)
+                            res.writeHead(201, { 'Content-Type': 'application/json', 'content-length': newTaskJson.length });
+                            res.end(newTaskJson);
+                        })
+                    })();
                     return;
+
                 case 'DELETE':
-                    res.writeHead(501, { 'Content-Type': 'application/json' });
-                    res.end();
+                    (() => {
+                        const body = [];
+                        req.on('error', (error) => {
+                            console.log(error)
+                        })
+
+                        req.on('data', (data) => {
+                            body.push(data)
+                        })
+
+                        req.on('end', () => {
+                            const jsonRaw = Buffer.concat(body).toString();
+                            const { id } = JSON.parse(jsonRaw)
+
+                            if (id === undefined) {
+                                const badRequset = JSON.stringify({ status: STATUS_CODES[400], message: "Id is required" })
+                                res.writeHead(400, { 'Content-Type': 'application/json', 'content-length': badRequset.length });
+                                res.end(badRequset);
+                                return;
+                            }
+
+                            const deleteTask = tasks.find((task) => task.id === id)
+
+                            if (deleteTask === undefined) {
+                                const notFound = JSON.stringify({ status: STATUS_CODES[404], message: "Task not found" })
+                                res.writeHead(404, { 'Content-Type': 'application/json', 'content-length': notFound.length });
+                                res.end(notFound);
+                                return;
+                            }
+
+                            tasks = tasks.filter((task) => task.id !== id)
+                            const deleteTaskJson = JSON.stringify(deleteTask)
+                            res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': deleteTaskJson.length });
+                            res.end(deleteTaskJson);
+                        })
+                    })();
                     return;
                 case 'PUT':
-                    res.writeHead(501, { 'Content-Type': 'application/json' });
-                    res.end();
+                    (() => {
+                        const body = [];
+                        req.on('error', (error) => {
+                            console.log(error)
+                        })
+
+                        req.on('data', (data) => {
+                            body.push(data)
+                        })
+
+                        req.on('end', () => {
+                            const jsonRaw = Buffer.concat(body).toString();
+                            const { id, status } = JSON.parse(jsonRaw)
+
+                            if (id === undefined) {
+                                const badRequset = JSON.stringify({ status: STATUS_CODES[400], message: "Id is required" })
+                                res.writeHead(400, { 'Content-Type': 'application/json', 'content-length': badRequset.length });
+                                res.end(badRequset);
+                                return;
+                            }
+
+                            if (status === undefined) {
+                                const badRequset = JSON.stringify({ status: STATUS_CODES[400], message: "Status is required" })
+                                res.writeHead(400, { 'Content-Type': 'application/json', 'content-length': badRequset.length });
+                                res.end(badRequset);
+                                return;
+                            }
+
+                            const index = tasks.findIndex((task) => task.id === id)
+
+                            if (index < 0) {
+                                const notFound = JSON.stringify({ status: STATUS_CODES[404], message: "Task not found" })
+                                res.writeHead(404, { 'Content-Type': 'application/json', 'content-length': notFound.length });
+                                res.end(notFound);
+                                return;
+                            }
+
+                            tasks[index].status = status
+                            const newTaskJson = JSON.stringify(tasks[index])
+                            res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': newTaskJson.length });
+                            res.end(newTaskJson);
+                        })
+                    })();
                     return;
                 default:
                     res.writeHead(405, { 'Content-Type': 'application/json' });
