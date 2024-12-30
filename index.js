@@ -32,9 +32,9 @@ server.on("request", (req, res) => {
         case '/api/v1/tasks':
             switch (method) {
                 case 'GET':
-                    const jsonRaw = JSON.stringify(tasks);
-                    res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': jsonRaw.length });
-                    res.end(jsonRaw);
+                    const getTasks = JSON.stringify(tasks);
+                    res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': getTasks.length });
+                    res.end(getTasks);
                     return;
 
                 case 'POST':
@@ -150,9 +150,9 @@ server.on("request", (req, res) => {
                             }
 
                             tasks[index].status = status
-                            const newTaskJson = JSON.stringify(tasks[index])
-                            res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': newTaskJson.length });
-                            res.end(newTaskJson);
+                            const newEditJson = JSON.stringify(tasks[index])
+                            res.writeHead(200, { 'Content-Type': 'application/json', 'content-length': newEditJson.length });
+                            res.end(newEditJson);
                         })
                     })();
                     return;
