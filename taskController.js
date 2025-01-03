@@ -2,6 +2,7 @@ const { randomUUID } = require('node:crypto');
 const { STATUS_CODES } = require('node:http');
 
 class TaskController {
+    // Dummy data
     #tasks = [
         {
             id: randomUUID(),
@@ -41,11 +42,13 @@ class TaskController {
         })
     }
 
+    // Get
     getAll = (req, res) => {
         this.#sendJson(res, this.#tasks, 200)
         return;
     }
 
+    // Post
     create = (req, res) => {
         this.#onData(req, (data) => {
             const { title } = data
@@ -66,6 +69,7 @@ class TaskController {
         return;
     }
 
+    // Update
     update = (req, res) => {
         this.#onData(req, (data) => {
             const { id, status } = data
@@ -92,6 +96,7 @@ class TaskController {
         return
     }
 
+    // Delete
     delete = (req, res) => {
         this.#onData(req, (data) => {
             const { id } = data
