@@ -48,7 +48,8 @@ class TaskController {
 
     // Update
     update = (req, res) => {
-        const { id, status } = req.body
+        const { status } = req.body
+        const { taskId: id } = req.params
         if (id === undefined) {
             res.json({ status: STATUS_CODES[400], message: "id is required" }).status(400)
             return;
@@ -73,7 +74,7 @@ class TaskController {
 
     // Delete
     delete = (req, res) => {
-        const { id } = req.body
+        const { taskId: id } = req.params
         if (id === undefined) {
             res.json({ status: STATUS_CODES[400], message: "id is required" }).status(400)
             return
