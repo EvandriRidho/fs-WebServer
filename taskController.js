@@ -1,33 +1,17 @@
 const { randomUUID } = require('node:crypto');
 const { STATUS_CODES } = require('node:http');
+const { TaskModel } = require('./taskModel');
 
 class TaskController {
-    // Dummy data
-    #tasks = [
-        {
-            id: randomUUID(),
-            title: 'Belajar NodeJS',
-            status: 'onprogress'
-        },
-        {
-            id: randomUUID(),
-            title: 'Belajar ReactJS',
-            status: 'completed'
-        },
-        {
-            id: randomUUID(),
-            title: 'Belajar NextJS',
-            status: 'todo'
-        },
-    ]
-
-    // Get
+    #repo
+    constructor(taskModel) {
+        this.#repo = taskModel
+    }
     getAll = (req, res) => {
-        res.json(this.#tasks).status(200)
+        res.json(this.#repo.all()).status(200)
         return;
     }
 
-    // Post
     create = (req, res) => {
         const { title } = req.body
         if (title === undefined || title.length < 3) {
@@ -35,18 +19,12 @@ class TaskController {
             return;
         }
 
-        const newTask = {
-            id: randomUUID(),
-            title,
-            status: "todo"
-        }
-        this.#tasks.push(newTask)
+        const newTask = this.#repo.add(title)
 
         res.json(newTask).status(201)
         return;
     }
 
-    // Update
     update = (req, res) => {
         const { status } = req.body
         const { taskId: id } = req.params
@@ -60,19 +38,16 @@ class TaskController {
             return;
         }
 
-        const index = this.#tasks.findIndex((task) => task.id === id);
+        const { ok, data } = this.#repo.updateStatus(id, status)
 
-        if (index < 0) {
+        if (!ok) {
             res.json({ status: STATUS_CODES[404], message: "Not Found" }).status(404)
             return;
         }
-
-        this.#tasks[index].status = status;
-        res.json(this.#tasks[index]).status(200)
+        res.json(data).status(200)
         return
     }
 
-    // Delete
     delete = (req, res) => {
         const { taskId: id } = req.params
         if (id === undefined) {
@@ -80,16 +55,14 @@ class TaskController {
             return
         }
 
-        const deleteTask = this.#tasks.find((task) => task.id === id)
+        const { ok, data } = this.#repo.removeById(id)
 
-        if (deleteTask === undefined) {
+        if (!ok) {
             res.json({ status: STATUS_CODES[404], message: "Not Found" }).status(404)
             return
         }
 
-        this.#tasks = this.#tasks.filter((task) => task.id !== id)
-
-        res.json(deleteTask).status(200)
+        res.json(data).status(200)
     }
 }
 

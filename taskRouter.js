@@ -1,7 +1,9 @@
 const express = require('express')
-
+const { TaskModel } = require('./taskModel')
 const { TaskController } = require('./taskController')
-const taskController = new TaskController()
+
+const taskModel = new TaskModel()
+const taskController = new TaskController(taskModel)
 
 const taskRouter = express();
 
