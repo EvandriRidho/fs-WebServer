@@ -1,4 +1,20 @@
 const { randomUUID } = require('node:crypto');
+const { z } = require('zod')
+
+const TASK_STATUS = ["todo", "onprogress", "completed"]
+
+const schemaAddTask = z.object({
+    title: z.string().min(3)
+}).required()
+
+const schemaUpdateTask = z.object({
+    status: z.enum(TASK_STATUS)
+}).required()
+
+const schemaTaskId = z.object({
+    taskId: z.string().uuid()
+})
+
 class TaskModel {
     #tasks = [
         {
@@ -52,4 +68,4 @@ class TaskModel {
     }
 }
 
-module.exports = { TaskModel }
+module.exports = { TaskModel, schemaAddTask, schemaUpdateTask, schemaTaskId }

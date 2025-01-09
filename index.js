@@ -2,7 +2,6 @@ const express = require('express')
 const taskRouter = require('./taskRouter')
 const morgan = require('morgan')
 
-
 const app = express()
 const logger = morgan(':method :url :status :res[content-length] :res[content-type] - :response-time ms')
 
