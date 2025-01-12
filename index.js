@@ -1,21 +1,18 @@
 const express = require('express')
-const taskRouter = require('./taskRouter')
+const config = require("./config")
+const router = require("./routes")
+
 const morgan = require('morgan')
+const logger = morgan(config.logFormat());
 
 const app = express()
-const logger = morgan(':method :url :status :res[content-length] :res[content-type] - :response-time ms')
-
 app.use(express.json())
 app.use(logger)
-
-app.use('/api/v1/tasks', taskRouter)
-app.use((err, req, res, next) => {
+app.use('/api/v1', router)
+app.use((err, req, res, _) => {
     console.log(err)
-    res.status(500).send('Something went wrong!')
+    res.json({ message: "Something going wrong!" })
 })
-
-
-const port = process.env.PORT || 3000
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`)
+app.listen(config.port(), () => {
+    console.log(`server is listening on port ${config.port()}`)
 })
